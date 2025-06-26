@@ -1,0 +1,180 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grading Sheet Generator</title>
+  <style>
+    body {
+      font-family: Helvetica, sans-serif;
+      background-color: #fafafa;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 650px;
+      background-color: #ffffff;
+      padding: 24px 32px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-radius: 8px;
+    }
+
+    .form-card {
+      position: relative;
+      border-left: 4px solid orange;
+      padding-left: 20px;
+      margin-bottom: 32px;
+    }
+
+    .form-card h2 {
+      font-weight: bold;
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+    }
+
+    .form-card p.info {
+      font-style: italic;
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: normal;
+    }
+
+    .submit-btn {
+      background-color: orange;
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background-color: darkorange;
+    }
+  </style>
+</head>
+<body>
+  <form class="form-container" id="gradingForm">
+    
+    <!-- 🧾 Section: Setup -->
+    <div class="form-card">
+      <h2>Course Setup</h2>
+      <p class="info">Enter basic information for your grading sheet. You can tweak values later in the generated sheet.</p>
+      
+      <label>Instructor Email</label>
+      <input type="text" name="email" required />
+
+      <label>Course Code / Name</label>
+      <input type="text" name="courseCode" required />
+
+      <label>Grading Components</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="components" value="Assignments" /> Assignments</label>
+        <label><input type="checkbox" name="components" value="Quizzes" /> Quizzes</label>
+        <label><input type="checkbox" name="components" value="Midterm" /> Midterm</label>
+        <label><input type="checkbox" name="components" value="Final" /> Final Exam</label>
+        <label><input type="checkbox" name="components" value="Attendance" /> Attendance</label>
+        <label><input type="checkbox" name="components" value="Participation" /> Participation</label>
+      </div>
+    </div>
+
+    <!-- ⚖️ Section: Weightage -->
+    <div class="form-card">
+      <h2>Weightage Distribution</h2>
+      <p class="info">Assign weightage (in %) to each component you've selected. You can also leave them blank to use default values.</p>
+
+      <label>Assignments</label>
+      <input type="number" name="Assignments" min="0" max="100" placeholder="e.g. 40" />
+
+      <label>Quizzes</label>
+      <input type="number" name="Quizzes" min="0" max="100" placeholder="e.g. 20" />
+
+      <label>Midterm</label>
+      <input type="number" name="Midterm" min="0" max="100" placeholder="e.g. 20" />
+
+      <label>Final Exam</label>
+      <input type="number" name="Final" min="0" max="100" placeholder="e.g. 40" />
+
+      <label>Attendance</label>
+      <input type="number" name="Attendance" min="0" max="100" placeholder="e.g. 10" />
+
+      <label>Participation</label>
+      <input type="number" name="Participation" min="0" max="100" placeholder="e.g. 10" />
+    </div>
+
+    <!-- Submit -->
+    <button class="submit-btn" type="submit">Generate Grading Sheet</button>
+
+  </form>
+
+  <script>
+    document.getElementById("gradingForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = {};
+
+      // Collect checked components
+      data.components = [];
+      formData.getAll("components").forEach(comp => {
+        data[comp] = formData.get(comp) || null;
+        data.components.push(comp);
+      });
+
+      // Collect standard fields
+      data.email = formData.get("email");
+      data.courseCode = formData.get("courseCode");
+
+      // Add weights
+      ["Assignments", "Quizzes", "Midterm", "Final", "Attendance", "Participation"].forEach(key => {
+        data[key] = formData.get(key) || null;
+      });
+
+      console.log("Form Data:", data);
+
+      // Example: send to Apps Script endpoint
+      fetch("YOUR_GOOGLE_APPS_SCRIPT_DEPLOYMENT_URL", {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      });
+
+      alert("Form submitted! Your grading sheet will be generated shortly.");
+      form.reset();
+    });
+  </script>
+</body>
+</html>
